@@ -1,0 +1,90 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <img src="
+                    {% if listing.img_url %}
+                        {{ listing.img_url }}
+                    {% else %}
+                        https://thumb.ac-illust.com/b1/b170870007dfa419295d949814474ab2_t.jpeg
+                    {% endif %}
+                " class="img-fluid rounded shadow-lg" alt="Listing Image">
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <h3 class="mb-4 mt-3 fw-bold">{{ listing.title }}</h3>
+                <h6 class="text-muted">Description:</h6>
+                <p class="text-secondary">{{ listing.description }}</p>
+                <h6 class="fw-bold">Starting Price: <span class="text-success">${{ listing.starting_price }}</span></h6>
+                <h6 class="fw-bold">Highest Bid: 
+                    {% if not listing.current_price %}
+                        <span class="text-danger">No bid yet</span>
+                    {% else %}
+                        <span class="text-primary">${{ listing.current_price }}</span>
+                    {% endif %}
+                </h6>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                {% if request.user == listing.user %}
+                    <form action="{% url 'closeListing' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-lg w-100 mt-3">Close Auction</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'addBid' listing.id %}" method="POST" class="mt-3">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="number" class="form-control" placeholder="Enter your bid amount" name="amount">
+                            <button class="btn btn-outline-secondary">Submit</button>
+                        </div>
+                    </form>
+                {% endif %}
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert mt-3 {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form action="{% url 'addAndRemoveWatchlist' listing.id %}" method="POST" class="mt-3">
+                    {% csrf_token %}
+                    <button class="btn {% if is_inlist %}btn-danger{% else %}btn-primary{% endif %} btn-lg w-100">
+                        {% if is_inlist %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}
+                    </button>
+                </form>
+                
+                {% if not listing.is_active %}
+                    <div class="alert alert-info mt-3"> 
+                        {% if not winner %}No one won the bid{% elif request.user == winner %}You won the bid! 🎉{% else %}{{ winner }} won the bid{% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-8 mx-auto">
+                <h5 class="mb-3">Leave a Comment:</h5>
+                <form action="{% url 'comment' listing.id %}" method="POST">
+                    {% csrf_token %}
+                    <textarea class="form-control mb-2" rows="3" name="comment" placeholder="Write your comment..."></textarea>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+            </div>
+        </div>
+        
+        {% for comment in comments %}
+            <div class="row mt-3">
+                <div class="col-md-8 mx-auto border rounded p-3 shadow-sm bg-light">
+                    <h6 class="fw-bold">{{ comment.user }}</h6>
+                    <p>{{ comment.comment }}</p>
+                    <small class="text-muted">Date: {{ comment.time }}</small>
+                </div>
+            </div>
+        {% endfor %}  
+    </div>
+{% endblock %}

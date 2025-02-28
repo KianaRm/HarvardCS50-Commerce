@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h2 class="text-center mb-4">Your listings</h2>
+        <div class="row g-4">
+            {% for listing in listings %}
+                <div class="col-md-4 col-sm-6 mb-3">
+                    <a href="{% url 'listing' listing.id %}" class="text-decoration-none text-dark">
+                        <div class="card h-100 shadow-lg rounded">
+                            <img class="card-img-top rounded-top mt-3" src="
+                                {% if listing.img_url %}
+                                    {{ listing.img_url }}
+                                {% else %}
+                                    https://thumb.ac-illust.com/b1/b170870007dfa419295d949814474ab2_t.jpeg
+                                {% endif %}
+                            " alt="Listing Image" style="height: 150px; object-fit: contain;">
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold">{{ listing.title }}</h5>
+                                <p class="card-text text-muted">{{ listing.description }}</p>
+                                <h6 class="text-primary fw-bold">Price: ${{ listing.starting_price }}</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
