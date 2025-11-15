@@ -127,7 +127,7 @@ def watchlist(request):
         "watchlist": userWatchlist
     })
 
-
+ 
 @login_required(login_url='login')
 def addAndRemoveWatchlist(request, id):
     user = request.user
